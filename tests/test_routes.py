@@ -124,3 +124,42 @@ class TestAccountService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
     # ADD YOUR TEST CASES HERE ...
+    def test_read_an_account(self):
+        """It should read an existing account"""
+        # Generate a random account
+        account = AccountFactory()
+        # Create an account
+        response = response = self.client.post(
+            BASE_URL,
+            json=account.serialize(),
+            content_type="test/html"
+        )
+
+        # New account ID
+        created_account = self._create_accounts(1)[0]
+        id = created_account.id
+
+        # Read newly created account from API route
+        response = self.client.get(f"{BASE_URL}/{id}", content_type="application/json")
+        read_account = response.get_json()
+
+        # Assert status code
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Assert return data is equal to test account
+        self.assertEqual(read_account["id"], created_account.id)
+        self.assertEqual(read_account["name"], created_account.name)
+        self.assertEqual(read_account["email"], created_account.email)
+        self.assertEqual(read_account["address"], created_account.address)
+
+    def test_read_an_invalid_account(self):
+        """It should returns a HTTP_404_NOT_FOUND when requesting an invalid ID"""
+
+        id = "Invalid ID"
+        response = self.client.get(f"{BASE_URL}/{id}", content_type="application/json")
+        # Assert status code
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        id = 0
+        response = self.client.get(f"{BASE_URL}/{id}", content_type="application/json")
+        # Assert status code
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
