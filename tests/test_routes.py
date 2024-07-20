@@ -25,6 +25,8 @@ HTTPS_ENVIRON = {'wsgi.url_scheme': 'https'}
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
+
+
 class TestAccountService(TestCase):
     """Account Service Tests"""
 
@@ -124,7 +126,8 @@ class TestAccountService(TestCase):
             json=account.serialize(),
             content_type="test/html"
         )
-        self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+        self.assertEqual(response.status_code,
+                         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
     # ADD YOUR TEST CASES HERE ...
     def test_read_an_account(self):
@@ -143,7 +146,8 @@ class TestAccountService(TestCase):
         id = created_account.id
 
         # Read newly created account from API route
-        response = self.client.get(f"{BASE_URL}/{id}", content_type="application/json")
+        response = self.client.get(f"{BASE_URL}/{id}",
+                                   content_type="application/json")
         read_account = response.get_json()
 
         # Assert status code
@@ -155,15 +159,18 @@ class TestAccountService(TestCase):
         self.assertEqual(read_account["address"], created_account.address)
 
     def test_read_an_invalid_account(self):
-        """It should return a HTTP_404_NOT_FOUND when requesting an invalid ID"""
+        """It should return a HTTP_404_NOT_FOUND
+        when requesting an invalid ID"""
 
         id = "Invalid ID"
-        response = self.client.get(f"{BASE_URL}/{id}", content_type="application/json")
+        response = self.client.get(f"{BASE_URL}/{id}",
+                                   content_type="application/json")
         # Assert status code
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         id = 0
-        response = self.client.get(f"{BASE_URL}/{id}", content_type="application/json")
+        response = self.client.get(f"{BASE_URL}/{id}",
+                                   content_type="application/json")
         # Assert status code
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -177,7 +184,8 @@ class TestAccountService(TestCase):
         # update the account
         new_account = resp.get_json()
         new_account["name"] = "Something Known"
-        resp = self.client.put(f"{BASE_URL}/{new_account['id']}", json=new_account)
+        resp = self.client.put(f"{BASE_URL}/{new_account['id']}",
+                               json=new_account)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         updated_account = resp.get_json()
         self.assertEqual(updated_account["name"], "Something Known")
@@ -218,10 +226,11 @@ class TestAccountService(TestCase):
         """It should return security headers in the response"""
         response = self.client.get('/', environ_overrides=HTTPS_ENVIRON)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        security_policy = 'default-src \'self\'; object-src \'none\''
         headers = {
             'X-Frame-Options': 'SAMEORIGIN',
             'X-Content-Type-Options': 'nosniff',
-            'Content-Security-Policy': 'default-src \'self\'; object-src \'none\'',
+            'Content-Security-Policy': security_policy,
             'Referrer-Policy': 'strict-origin-when-cross-origin'
         }
         for key, value in headers.items():
