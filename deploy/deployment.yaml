@@ -18,7 +18,7 @@ spec:
         app: accounts
     spec:
       containers:
-      - image: accounts-openshit-registry-image
+      - image: accounts-openshift-registry-image
         name: accounts
         resources: {}
 
